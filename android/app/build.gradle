@@ -46,10 +46,8 @@ flutter {
 apply plugin: 'com.google.gms.google-services'
 
 dependencies {
-    // Use the Firebase BoM to manage versions
-    implementation platform('com.google.firebase:firebase-bom:33.7.0') // Use the latest version
-
-    // Add Firebase Authentication dependency
+    implementation platform('com.google.firebase:firebase-bom:32.3.0')
     implementation 'com.google.firebase:firebase-auth'
-    // You can add other Firebase services if needed
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
 }

@@ -4,6 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart'; // To open the generated PDF
 import 'pdf_generator.dart'; // Replace this with your PDF generation logic
+//import 'home_page.dart';
+import 'profile_page.dart';
 
 class CreateCertificatePage extends StatefulWidget {
   const CreateCertificatePage({super.key});
@@ -223,7 +225,10 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
               IconButton(
                 icon: const Icon(Icons.person, color: Colors.white), // White icon
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()),
+                  );
                 },
               ),
               IconButton(
@@ -248,3 +253,4 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
     );
   }
 }
+

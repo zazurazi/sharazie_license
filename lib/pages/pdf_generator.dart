@@ -22,80 +22,93 @@ Future<void> generateCertificatePdf({
   final pdf = pw.Document();
 
   // Load the logo as a byte array
-  //final logoBytes = await rootBundle.load('lib/assets/KARAN.png');
-  //final logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
+  final logoBytes = await rootBundle.load('lib/assets/logo.jpeg'); // Replace with your image path
+  final logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
 
   pdf.addPage(
     pw.Page(
       build: (pw.Context context) {
-        return pw.Padding(
-          padding: const pw.EdgeInsets.all(20),
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              // Certificate Header
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  /*pw.Container(
-                    width: 100,
-                    height: 100,
-                    child: pw.Image(logo, fit: pw.BoxFit.cover),
-                  ),*/
-                  pw.Text(
-                    'Certificate of Completion',
-                    style: pw.TextStyle(fontSize: 28, fontWeight: pw.FontWeight.bold),
+        return pw.Center(
+          child: pw.Padding(
+            padding: const pw.EdgeInsets.all(20),
+            child: pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                // Certificate Logo
+                pw.Container(
+                  width: 100,
+                  height: 100,
+                  child: pw.Image(logo, fit: pw.BoxFit.cover),
+                ),
+                pw.SizedBox(height: 20),
+
+                // Certificate Header
+                pw.Text(
+                  'Sijil Kehadiran',
+                  style: pw.TextStyle(
+                    fontSize: 28,
+                    fontWeight: pw.FontWeight.bold,
                   ),
-                ],
-              ),
-              pw.Divider(thickness: 1),
-              pw.SizedBox(height: 20),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.Divider(thickness: 1),
+                pw.SizedBox(height: 20),
 
-              // Certificate Details
-              pw.Text(
-                'This is to certify that:',
-                style: pw.TextStyle(fontSize: 16),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                name,
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                'has successfully completed the course:',
-                style: pw.TextStyle(fontSize: 16),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                courseName,
-                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text('On the date: $courseDate'),
-              pw.Text('Location: $location'),
-              pw.SizedBox(height: 20),
+                // Certificate Details
+                pw.Text(
+                  'This is to certify that:',
+                  style: pw.TextStyle(fontSize: 16),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  name,
+                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  'has successfully completed the course:',
+                  style: pw.TextStyle(fontSize: 16),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  courseName,
+                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text('On the date: $courseDate', textAlign: pw.TextAlign.center),
+                pw.Text('Location: $location', textAlign: pw.TextAlign.center),
+                pw.SizedBox(height: 20),
 
-              // Signatures and Footer
-              pw.Text(
-                'Instructor: $instructorName',
-                style: pw.TextStyle(fontSize: 14),
-              ),
-              pw.Text(
-                'Instructor Certificate Number: $instructorCertificateNumber',
-                style: pw.TextStyle(fontSize: 14),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Divider(thickness: 1),
-              pw.Text(
-                'Certificate Number: $certificateNumber | Reference Number: $referenceNumber',
-                style: pw.TextStyle(fontSize: 10),
-              ),
-              pw.Text(
-                'Recognized By: $recognizedBy',
-                style: pw.TextStyle(fontSize: 10),
-              ),
-            ],
+                // Signatures and Footer
+                pw.Text(
+                  'Instructor: $instructorName',
+                  style: pw.TextStyle(fontSize: 14),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.Text(
+                  'Instructor Certificate Number: $instructorCertificateNumber',
+                  style: pw.TextStyle(fontSize: 14),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.SizedBox(height: 20),
+                pw.Divider(thickness: 1),
+                pw.Text(
+                  'Certificate Number: $certificateNumber | Reference Number: $referenceNumber',
+                  style: pw.TextStyle(fontSize: 10),
+                  textAlign: pw.TextAlign.center,
+                ),
+                pw.Text(
+                  'Recognized By: $recognizedBy',
+                  style: pw.TextStyle(fontSize: 10),
+                  textAlign: pw.TextAlign.center,
+                ),
+              ],
+            ),
           ),
         );
       },
