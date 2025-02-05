@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sharazie_license/pages/profile_page.dart';
 import 'home_screen.dart';
+import 'profile_page.dart'; // ✅ Import ProfileScreen
 import '../widget/navbar.dart';
 
 class Homepage extends StatefulWidget {
@@ -13,11 +15,11 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
 
-  // List of screens
+  // ✅ List of screens with ProfileScreen included
   final List<Widget> _screens = [
     HomeScreen(),
-    Center(child: Text('Profile Screen')), // Replace with actual ProfileScreen
-    Center(child: Text('Sign Out')), // Placeholder for Sign Out screen
+    ProfileScreen(), // ✅ Replace placeholder with ProfileScreen
+    Center(child: Text('Sign Out')), // Placeholder for sign-out action
   ];
 
   // Handle tab navigation
@@ -35,7 +37,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: _screens[_currentIndex], // ✅ Display the selected screen
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTabTapped: _onTabTapped,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:sharazie_license/components/my_textfield.dart';
 import 'package:sharazie_license/components/square_tile.dart';
 
@@ -26,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
     } catch (e) {
-      // Display error message if sign-in fails
       showDialog(
         context: context,
         builder: (context) {
@@ -59,7 +59,6 @@ class _LoginPageState extends State<LoginPage> {
       // Sign in to Firebase with the Google credential
       await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
-      // Display error message if sign-in fails
       showDialog(
         context: context,
         builder: (context) {

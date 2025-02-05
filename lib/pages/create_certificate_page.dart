@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'package:open_file/open_file.dart'; // To open the generated PDF
+import 'package:sharazie_license/pages/home_screen.dart';
 import 'pdf_generator.dart'; // Replace this with your PDF generation logic
-//import 'home_page.dart';
+import 'home_page.dart';
 import 'profile_page.dart';
 
 class CreateCertificatePage extends StatefulWidget {
@@ -219,7 +219,10 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
               IconButton(
                 icon: const Icon(Icons.home, color: Colors.white), // White icon
                 onPressed: () {
-                  Navigator.pop(context); // Navigate back to Home
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
                 },
               ),
               IconButton(
@@ -253,4 +256,5 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
     );
   }
 }
+
 
