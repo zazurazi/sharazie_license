@@ -25,6 +25,10 @@ Future<void> generateCertificatePdf({
   final logoBytes = await rootBundle.load('lib/assets/logo.jpeg'); // Replace with your image path
   final logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
 
+  // Load the custom font
+  final fontData = await rootBundle.load('lib/assets/fonts/FontsFree-Net-SF-Pro-Rounded-Bold.ttf');
+  final ttf = pw.Font.ttf(fontData);
+
   pdf.addPage(
     pw.Page(
       build: (pw.Context context) {
@@ -49,6 +53,7 @@ Future<void> generateCertificatePdf({
                   style: pw.TextStyle(
                     fontSize: 28,
                     fontWeight: pw.FontWeight.bold,
+                    font: ttf, // Apply custom font
                   ),
                   textAlign: pw.TextAlign.center,
                 ),
@@ -58,53 +63,53 @@ Future<void> generateCertificatePdf({
                 // Certificate Details
                 pw.Text(
                   'This is to certify that:',
-                  style: pw.TextStyle(fontSize: 16),
+                  style: pw.TextStyle(fontSize: 16, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.SizedBox(height: 10),
                 pw.Text(
                   name,
-                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.SizedBox(height: 10),
                 pw.Text(
                   'has successfully completed the course:',
-                  style: pw.TextStyle(fontSize: 16),
+                  style: pw.TextStyle(fontSize: 16, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.SizedBox(height: 10),
                 pw.Text(
                   courseName,
-                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.SizedBox(height: 10),
-                pw.Text('On the date: $courseDate', textAlign: pw.TextAlign.center),
-                pw.Text('Location: $location', textAlign: pw.TextAlign.center),
+                pw.Text('On the date: $courseDate', style: pw.TextStyle(font: ttf), textAlign: pw.TextAlign.center),
+                pw.Text('Location: $location', style: pw.TextStyle(font: ttf), textAlign: pw.TextAlign.center),
                 pw.SizedBox(height: 20),
 
                 // Signatures and Footer
                 pw.Text(
                   'Instructor: $instructorName',
-                  style: pw.TextStyle(fontSize: 14),
+                  style: pw.TextStyle(fontSize: 14, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.Text(
                   'Instructor Certificate Number: $instructorCertificateNumber',
-                  style: pw.TextStyle(fontSize: 14),
+                  style: pw.TextStyle(fontSize: 14, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.SizedBox(height: 20),
                 pw.Divider(thickness: 1),
                 pw.Text(
                   'Certificate Number: $certificateNumber | Reference Number: $referenceNumber',
-                  style: pw.TextStyle(fontSize: 10),
+                  style: pw.TextStyle(fontSize: 10, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
                 pw.Text(
                   'Recognized By: $recognizedBy',
-                  style: pw.TextStyle(fontSize: 10),
+                  style: pw.TextStyle(fontSize: 10, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
               ],

@@ -24,11 +24,17 @@ class CertificatePage extends StatelessWidget {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Certificate successfully generated for ${data['name']}!')),
+        SnackBar(content: Text(
+          'Certificate successfully generated for ${data['name']}!',
+          style: const TextStyle(fontFamily: 'SFProRounded'),
+        )),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error generating certificate: $e')),
+        SnackBar(content: Text(
+          'Error generating certificate: $e',
+          style: const TextStyle(fontFamily: 'SFProRounded'),
+        )),
       );
     }
   }
@@ -42,13 +48,13 @@ class CertificatePage extends StatelessWidget {
           children: [
             Image.asset(
               'lib/assets/logo.jpeg', // Replace with the correct image path
-              height: 40, // Adjust the height of the image
+              height: 35, // Adjust the height of the image
             ),
-            const SizedBox(width: 2), // Add space between the image and the text
+            const SizedBox(width: 1), // Add space between the image and the text
             const Text(
               "Sharazie License",
               style: TextStyle(
-                fontFamily: 'Pacifico', // Use Pacifico font
+                fontFamily: 'SFProRounded', // ✅ Updated font
                 fontSize: 24, // Adjust font size if needed
               ),
             ),
@@ -67,13 +73,23 @@ class CertificatePage extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-              return Center(child: Text('Error fetching data: ${snapshot.error}'));
+              return Center(
+                child: Text(
+                  'Error fetching data: ${snapshot.error}',
+                  style: const TextStyle(fontFamily: 'SFProRounded'),
+                ),
+              );
             }
 
             final documents = snapshot.data?.docs ?? [];
 
             if (documents.isEmpty) {
-              return const Center(child: Text('No certificates available.'));
+              return const Center(
+                child: Text(
+                  'No certificates available.',
+                  style: TextStyle(fontFamily: 'SFProRounded'),
+                ),
+              );
             }
 
             return ListView.builder(
@@ -84,8 +100,14 @@ class CertificatePage extends StatelessWidget {
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
-                    title: Text(data['name'] ?? ''),
-                    subtitle: Text(data['courseName'] ?? ''),
+                    title: Text(
+                      data['name'] ?? '',
+                      style: const TextStyle(fontFamily: 'SFProRounded'),
+                    ),
+                    subtitle: Text(
+                      data['courseName'] ?? '',
+                      style: const TextStyle(fontFamily: 'SFProRounded'),
+                    ),
                     trailing: const Icon(Icons.download),
                     onTap: () {
                       generateCertificate(context, data);

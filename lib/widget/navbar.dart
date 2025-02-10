@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../pages/home_page.dart'; // Replace with the actual home page file
-import '../pages/profile_page.dart'; // Replace with the actual profile page file
+import 'package:firebase_auth/firebase_auth.dart';
+import '../pages/loginScreen.dart'; // Ensure this is correct
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -11,6 +11,15 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.currentIndex,
     required this.onTabTapped,
   }) : super(key: key);
+
+  void _logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage(showRegisterPage: () { },)), // Ensure LoginPage is correctly imported
+          (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,13 @@ class CustomBottomNavBar extends StatelessWidget {
         ),
         child: BottomNavigationBar(
           currentIndex: currentIndex,
-          onTap: onTabTapped,
+          onTap: (index) {
+            if (index == 2) {
+              _logout(context);
+            } else {
+              onTabTapped(index);
+            }
+          },
           selectedItemColor: Colors.blue,
           unselectedItemColor: Colors.white,
           backgroundColor: Colors.transparent,

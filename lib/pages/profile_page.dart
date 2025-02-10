@@ -34,41 +34,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          "Profile",
-          style: pacificoStyle(24),
-        ),
-        centerTitle: true,
         backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            // Logo Image
+            Image.asset(
+              'lib/assets/logo.jpeg', // Path to your logo image
+              height: 35, // Adjust the size of the logo
+            ),
+            const SizedBox(width: 0), // Space between the logo and the title
+            // Profile Title
+            Text(
+              'Profile',
+              style: sfProRoundedStyle(24),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Stack(
                 children: [
-                  _image != null
-                      ? CircleAvatar(
-                      radius: 80, backgroundImage: MemoryImage(_image!))
-                      : const CircleAvatar(
-                    radius: 70,
-                    backgroundImage: NetworkImage(
-                        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"),
+                  // Profile image with black frame
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.black, // Black border color
+                        width: 4, // Border width
+                      ),
+                    ),
+                    child: _image != null
+                        ? CircleAvatar(
+                      radius: 80,
+                      backgroundImage: MemoryImage(_image!),
+                    )
+                        : const CircleAvatar(
+                      radius: 70,
+                      backgroundImage: NetworkImage(
+                          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"),
+                    ),
                   ),
                   Positioned(
-                      bottom: 0,
-                      right: 10,
-                      child: IconButton(
-                          onPressed: () {
-                            showImagePickerOption(context);
-                          },
-                          icon: const Icon(Icons.add_a_photo,
-                              size: 30, color: Colors.black)))
+                    bottom: 0,
+                    right: 10,
+                    child: IconButton(
+                      onPressed: () {
+                        showImagePickerOption(context);
+                      },
+                      icon: const Icon(Icons.add_a_photo, size: 30, color: Colors.black),
+                    ),
+                  )
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
+              // Form fields
               buildTextField("Full Name", nameController),
               buildTextField("IC Number", icController),
               buildTextField("Email", emailController),
@@ -76,21 +100,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               buildTextField("Gender", genderController),
               buildTextField("Date of Birth", dobController),
               const SizedBox(height: 20),
+              // Save button
               ElevatedButton(
                 onPressed: saveProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // ✅ Set blue color
+                  backgroundColor: Colors.blue, // Set the button color
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // ✅ Rounded button
+                    borderRadius: BorderRadius.circular(30), // Rounded button
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  elevation: 10, // Adds shadow to the button
+                  shadowColor: Colors.grey.withOpacity(0.5), // Sets the shadow color and opacity
                 ),
                 child: Text(
-                  "Save Profile",
-                  style: pacificoStyle(18).copyWith(color: Colors.black), // ✅ Pacifico font + White color
+                  "Save",
+                  style: sfProRoundedStyle(18).copyWith(color: Colors.black), // SFProRounded font + Black color
                 ),
-              )
-
+              ),
             ],
           ),
         ),
@@ -103,16 +129,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(bottom: 15),
       child: TextField(
         controller: controller,
+        style: sfProRoundedStyle(16), // Apply SFProRounded font to TextField text
         decoration: InputDecoration(
           hintText: hint,
+          hintStyle: sfProRoundedStyle(16), // Apply SFProRounded font to hint text
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(
+              color: Colors.black, // Black border color
+              width: 2, // Border width
+            ),
           ),
-          contentPadding:
-          const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: Colors.black, // Border color when focused
+              width: 2,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide(
+              color: Colors.black, // Border color when enabled
+              width: 2,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
@@ -120,64 +164,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void showImagePickerOption(BuildContext context) {
     showModalBottomSheet(
-        backgroundColor: Colors.grey[200],
-        context: context,
-        builder: (builder) {
-          return Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 5,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    InkWell(
-                      onTap: _pickImageFromGallery,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.image, size: 80),
-                          Text("Gallery")
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: _pickImageFromCamera,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Icon(Icons.camera_alt_outlined, size: 80),
-                          Text("Camera")
-                        ],
-                      ),
-                    ),
-                  ],
+      backgroundColor: Colors.grey[200],
+      context: context,
+      builder: (builder) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                InkWell(
+                  onTap: _pickImageFromGallery,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.image, size: 80),
+                      Text("Gallery")
+                    ],
+                  ),
                 ),
-              ));
-        });
+                InkWell(
+                  onTap: _pickImageFromCamera,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.camera_alt_outlined, size: 80),
+                      Text("Camera")
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future _pickImageFromGallery() async {
-    final returnImage =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
+    final returnImage = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (returnImage == null) return;
     setState(() {
       selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
-    saveImage(_image!); // ✅ Save image to SharedPreferences
+    saveImage(_image!); // Save image to SharedPreferences
     Navigator.of(context).pop();
   }
 
   Future _pickImageFromCamera() async {
-    final returnImage =
-    await ImagePicker().pickImage(source: ImageSource.camera);
+    final returnImage = await ImagePicker().pickImage(source: ImageSource.camera);
     if (returnImage == null) return;
     setState(() {
       selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
-    saveImage(_image!); // ✅ Save image to SharedPreferences
+    saveImage(_image!); // Save image to SharedPreferences
     Navigator.of(context).pop();
   }
 
@@ -191,7 +235,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await prefs.setString('dob', dobController.text);
 
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile Saved Successfully!")));
+      const SnackBar(content: Text("Profile Saved Successfully!")),
+    );
   }
 
   Future<void> saveImage(Uint8List imageBytes) async {
@@ -217,11 +262,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  TextStyle pacificoStyle(double size) {
+  TextStyle sfProRoundedStyle(double size) {
     return TextStyle(
-      fontFamily: 'Pacifico',
+      fontFamily: 'SFProRounded',
       fontSize: size,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500, // Try different weights: w400, w500, w600, w700
     );
   }
 }

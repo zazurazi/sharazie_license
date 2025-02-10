@@ -48,6 +48,7 @@ dependencies:
   open_file: ^3.5.10
   intl: ^0.20.2
   shared_preferences: ^2.5.1
+  encrypt: ^5.0.3
 
 
 
@@ -93,9 +94,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-  - family: Pacifico
-    fonts:
-      - asset: font/Pacifico.ttf
+      - family: SFProRounded
+        fonts:
+          - asset: lib/assets/fonts/FontsFree-Net-SF-Pro-Rounded-Bold.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
