@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../auth/main_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> saveOtpVerifiedStatus(bool status) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('otp_verified', status);
+}
+
+String _decryptOTP(String encryptedOTP) {
+  return encryptedOTP.split('').reversed.join();
+}
 
 class OtpVerificationPage extends StatefulWidget {
   final String userId;
@@ -24,8 +34,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           .get();
 
       if (doc.exists) {
-        final storedOTP = doc.data()?['otp'];
+        final encryptedOTP = doc.data()?['otp'];
+        final storedOTP = _decryptOTP(encryptedOTP);
         final enteredOTP = _otpController.text.trim();
+
+        // Debugging: Print values for verification
+        print("Debugging OTP verification:");
+        print("Encrypted OTP from Firebase: $encryptedOTP");
+        print("Decrypted OTP from Firebase: $storedOTP");
+        print("Entered OTP by User: $enteredOTP");
 
         if (enteredOTP == storedOTP) {
           await FirebaseFirestore.instance
@@ -33,10 +50,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               .doc(widget.userId)
               .set({'isOtpVerified': true}, SetOptions(merge: true));
 
+          await saveOtpVerifiedStatus(true);
+
           await FirebaseFirestore.instance
               .collection('otp_verification')
               .doc(widget.userId)
-              .delete(); // Delete OTP after successful login
+              .delete();
 
           Navigator.pushReplacement(
             context,

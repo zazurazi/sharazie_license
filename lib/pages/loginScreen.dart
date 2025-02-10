@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await _sendOTP(user); // Generate and send OTP after login
+        await _sendOTP(user);
       }
     } catch (e) {
       _showError(e.toString());
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
         'created_at': FieldValue.serverTimestamp(),
       });
 
-      print("Generated OTP: $otpCode"); // Debugging purpose
+      print("Generated OTP: $otpCode");
 
       Navigator.pushReplacement(
         context,
@@ -60,11 +60,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   int _generateOTP() {
-    return Random().nextInt(900000) + 100000; // 6-digit OTP
+    return Random().nextInt(900000) + 100000;
   }
 
   String _encryptOTP(int otp) {
-    return otp.toString().split('').reversed.join(); // Simple encryption (reverse)
+    return otp.toString().split('').reversed.join();
   }
 
   void _showError(String message) {
@@ -138,17 +138,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Log In',
                       style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 30),
-                GestureDetector(
-                  onTap: widget.showRegisterPage,
-                  child: Text(
-                    'Not a member? Register now',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
