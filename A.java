@@ -1,0 +1,10 @@
+keytool error: java.io.FileNotFoundException: %USERPROFILE%\.android\debug.keystore (The system cannot find the path specified)
+java.io.FileNotFoundException: %USERPROFILE%\.android\debug.keystore (The system cannot find the path specified)
+        at java.base/java.io.FileOutputStream.open0(Native Method)
+        at java.base/java.io.FileOutputStream.open(FileOutputStream.java:295)
+        at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:237)
+        at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:124)
+        at java.base/sun.security.tools.keytool.Main.doCommands(Main.java:1385)
+        at java.base/sun.security.tools.keytool.Main.run(Main.java:429)
+        at java.base/sun.security.tools.keytool.Main.main(Main.java:410)
+PS C:\Users\ashri\AndroidStudioProjects\sharazie_license> 
