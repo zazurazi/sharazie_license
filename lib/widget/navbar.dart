@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../pages/loginScreen.dart'; // Ensure this is correct
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -12,11 +14,31 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.onTabTapped,
   }) : super(key: key);
 
-  void _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
+  Future<void> _logout(BuildContext context) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Delete OTP from Firestore
+        await FirebaseFirestore.instance
+            .collection('otp_verification')
+            .doc(user.uid)
+            .delete();
+
+        // Clear OTP verified status from SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('otp_verified');
+
+        // Sign out the user
+        await FirebaseAuth.instance.signOut();
+      }
+    } catch (e) {
+      print("Error during logout: $e");
+    }
+
+    // Navigate to login page
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage(showRegisterPage: () { },)), // Ensure LoginPage is correctly imported
+      MaterialPageRoute(builder: (context) => LoginPage(showRegisterPage: () {})),
           (Route<dynamic> route) => false,
     );
   }
@@ -40,7 +62,7 @@ class CustomBottomNavBar extends StatelessWidget {
           currentIndex: currentIndex,
           onTap: (index) {
             if (index == 2) {
-              _logout(context);
+              _logout(context); // ✅ Logout when "Sign Out" is tapped
             } else {
               onTabTapped(index);
             }

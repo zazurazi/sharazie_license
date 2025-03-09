@@ -46,9 +46,13 @@ dependencies:
   cloud_firestore: ^5.6.2
   printing: ^5.7.0
   open_file: ^3.5.10
-  intl: ^0.20.2
+  intl: 0.19.0
+  mailer: ^6.0.1
   shared_preferences: ^2.5.1
   encrypt: ^5.0.3
+  flutter_email_sender: ^7.0.0
+  cloud_functions: ^5.3.1
+  local_auth: ^2.1.6
 
 
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:math';
-import 'otp_verification.dart';
+import 'package:sharazie_license/pages/home_page.dart';
+import 'package:sharazie_license/pages/register_page.dart';
+import '../admin/admin_dashboard.dart';
+import 'otp_verification.dart'; // Import OTP Verification Page
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterPage;
@@ -15,72 +17,61 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-  Future<void> signInWithEmail() async {
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
+
     try {
-      UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        await _sendOTP(user);
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        _showError("User data not found.");
+        return;
       }
-    } catch (e) {
-      _showError(e.toString());
+
+      String role = userDoc['role'] ?? "";
+
+      if (role == "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminDashboard()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Homepage(),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? "Login failed.");
+    } finally {
+      setState(() => _isLoading = false);
     }
-  }
-
-  Future<void> _sendOTP(User user) async {
-    try {
-      final otpCode = _generateOTP();
-      final encryptedOTP = _encryptOTP(otpCode);
-
-      await FirebaseFirestore.instance
-          .collection('otp_verification')
-          .doc(user.uid)
-          .set({
-        'otp': encryptedOTP,
-        'created_at': FieldValue.serverTimestamp(),
-      });
-
-      print("Generated OTP: $otpCode");
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationPage(userId: user.uid),
-        ),
-      );
-    } catch (e) {
-      _showError("Error sending OTP: $e");
-    }
-  }
-
-  int _generateOTP() {
-    return Random().nextInt(900000) + 100000;
-  }
-
-  String _encryptOTP(int otp) {
-    return otp.toString().split('').reversed.join();
   }
 
   void _showError(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(content: Text(message));
-      },
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(fontFamily: 'SFProRounded'),
+        ),
+        backgroundColor: Colors.red,
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -93,57 +84,147 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   'Welcome to Sharazie',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold, fontFamily: 'SFProRounded'),
                 ),
-                SizedBox(height: 40),
-                Image.asset('lib/assets/logo.jpeg', width: 130),
-                SizedBox(height: 60),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 50.0),
-                  child: TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      hintText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                const SizedBox(height: 10),
+                Image.asset('lib/assets/logo2.jpeg', width: 100),
+                const SizedBox(height: 1),
+
+                // Email Input
+                _buildInputField(
+                  controller: _emailController,
+                  hintText: "Email",
+                  obscureText: false,
+                ),
+                const SizedBox(height: 18),
+
+                // Password Input
+                _buildInputField(
+                  controller: _passwordController,
+                  hintText: "Password",
+                  obscureText: !_isPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                     ),
+                    onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                   ),
                 ),
-                SizedBox(height: 15),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 50.0),
-                  child: TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: 'Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                const SizedBox(height: 20),
+
+                // Login Button
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
+                    elevation: 5,
+                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : const Text("Log In",
+                      style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'SFProRounded')),
+                ),
+
+                const SizedBox(height: 15),
+
+                // Biometric Login Dummy Button
+                ElevatedButton.icon(
+                  onPressed: () {}, // No functionality yet
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(35),
+                    ),
+                    elevation: 5,
+                  ),
+                  icon: Icon(Icons.fingerprint, color: Colors.black, size: 24),
+                  label: const Text(
+                    "Biometric Login (Coming Soon)",
+                    style: TextStyle(fontSize: 19, color: Colors.black, fontFamily: 'SFProRounded'),
                   ),
                 ),
-                SizedBox(height: 30),
+
+                const SizedBox(height: 20),
+
+                // Register Link
                 GestureDetector(
-                  onTap: signInWithEmail,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(50),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RegisterPage(
+                          showLoginPage: () {
+                            Navigator.pop(context); // Go back to Login Page
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text.rich(
+                    TextSpan(
+                      text: "Don't have an account? ",
+                      children: [
+                        TextSpan(
+                          text: "Register Now",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'SFProRounded',
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      'Log In',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
+                    style: TextStyle(fontSize: 18, fontFamily: 'SFProRounded'),
                   ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required bool obscureText,
+    Widget? suffixIcon,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 50.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(fontFamily: 'SFProRounded'),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            suffixIcon: suffixIcon,
+          ),
+          style: TextStyle(fontFamily: 'SFProRounded'),
         ),
       ),
     );

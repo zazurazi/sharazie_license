@@ -21,9 +21,9 @@ Future<void> generateCertificatePdf({
 }) async {
   final pdf = pw.Document();
 
-  // Load the logo as a byte array
-  final logoBytes = await rootBundle.load('lib/assets/logo.jpeg'); // Replace with your image path
-  final logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
+  // Load the Logo Image
+  final ByteData logoBytes = await rootBundle.load('lib/assets/logo.jpeg');
+  final pw.MemoryImage logo = pw.MemoryImage(logoBytes.buffer.asUint8List());
 
   // Load the custom font
   final fontData = await rootBundle.load('lib/assets/fonts/FontsFree-Net-SF-Pro-Rounded-Bold.ttf');
@@ -53,7 +53,7 @@ Future<void> generateCertificatePdf({
                   style: pw.TextStyle(
                     fontSize: 28,
                     fontWeight: pw.FontWeight.bold,
-                    font: ttf, // Apply custom font
+                    font: ttf,
                   ),
                   textAlign: pw.TextAlign.center,
                 ),
@@ -112,6 +112,8 @@ Future<void> generateCertificatePdf({
                   style: pw.TextStyle(fontSize: 10, font: ttf),
                   textAlign: pw.TextAlign.center,
                 ),
+                pw.SizedBox(height: 30),
+
               ],
             ),
           ),

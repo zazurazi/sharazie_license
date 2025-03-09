@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:sharazie_license/pages/home_screen.dart';
+import 'package:sharazie_license/pages/payment_page.dart'; // Import PaymentPage
 import 'pdf_generator.dart';
-import 'home_page.dart';
 import 'profile_page.dart';
 
 class CreateCertificatePage extends StatefulWidget {
-  const CreateCertificatePage({super.key});
+  const CreateCertificatePage({super.key, required String documentId, required Map certificateData});
 
   @override
   _CreateCertificatePageState createState() => _CreateCertificatePageState();
@@ -94,13 +94,13 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisSize: MainAxisSize.min,  // Ensures minimal space usage
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Image.asset(
                           'lib/assets/logo.jpeg',
-                          height: 45, // Adjust size as needed
+                          height: 45,
                         ),
-                        const SizedBox(width: 0), // Adds spacing between logo and text
+                        const SizedBox(width: 0),
                         const Text(
                           'Create License',
                           style: TextStyle(
@@ -112,7 +112,7 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 60), // Spacing between title and new text
+                    const SizedBox(height: 60),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -131,84 +131,19 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
 
               const SizedBox(height: 15),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12), // Adjust the border radius for rounded corners
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: _buildTextField(_certificateNumberController, 'Certificate Number'),
-              ),
+              _buildTextField(_certificateNumberController, 'Certificate Number'),
               const SizedBox(height: 23),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: _buildTextField(_referenceNumberController, 'Reference Number'),
-              ),
+              _buildTextField(_referenceNumberController, 'Reference Number'),
               const SizedBox(height: 23),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: _buildTextField(_nameController, 'Name'),
-              ),
+              _buildTextField(_nameController, 'Name'),
               const SizedBox(height: 23),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: _buildTextField(_idNumberController, 'ID Number'),
-              ),
+              _buildTextField(_idNumberController, 'ID Number'),
               const SizedBox(height: 23),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: _buildTextField(_courseDateController, 'Date'),
-              ),
+              _buildTextField(_courseDateController, 'Date'),
               const SizedBox(height: 30),
 
               Center(
@@ -219,7 +154,7 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
                       borderRadius: BorderRadius.circular(35.0),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    elevation: 5, // Adding shadow
+                    elevation: 5,
                   ),
                   onPressed: _saveCertificate,
                   child: const Text(
@@ -241,40 +176,52 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
   }
 
   Widget _buildTextField(TextEditingController controller, String labelText) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
-        labelStyle: const TextStyle(fontFamily: 'SFProRounded'),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(
-            color: Colors.black, // Black border color
-            width: 2.0, // Border width
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 0),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(
-            color: Colors.black, // Black border color when focused
-            width: 2.0,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(
-            color: Colors.black, // Black border color when enabled
-            width: 2.0,
-          ),
-        ),
-        filled: true,
-        fillColor: Colors.grey[200],
+        ],
       ),
-      style: const TextStyle(fontFamily: 'SFProRounded'),
-      validator: (value) => value!.isEmpty ? 'Required' : null,
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: const TextStyle(fontFamily: 'SFProRounded'),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: const BorderSide(
+              color: Colors.black,
+              width: 2.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: const BorderSide(
+              color: Colors.black,
+              width: 2.0,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+            borderSide: const BorderSide(
+              color: Colors.black,
+              width: 2.0,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
+        ),
+        style: const TextStyle(fontFamily: 'SFProRounded'),
+        validator: (value) => value!.isEmpty ? 'Required' : null,
+      ),
     );
   }
-
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     return Container(
@@ -297,7 +244,7 @@ class _CreateCertificatePageState extends State<CreateCertificatePage> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
             }),
             _buildNavBarItem(Icons.credit_card_outlined, 'Payment', () {
-              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentPage())); // Updated to PaymentPage
             }),
             _buildNavBarItem(Icons.logout, 'Logout', () {
               // Handle logout logic

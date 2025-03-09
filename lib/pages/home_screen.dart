@@ -6,21 +6,44 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Colors.white,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 690,
+        width: double.infinity, // Full width
+        height: double.infinity, // Full height
+        color: Colors.white, // Set white background for the whole page
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start, // Align content to top
+          children: [
+            const SizedBox(height: 150), // Space from top
+            Text(
+              "Sharazie",
+              style: TextStyle(
+                fontFamily: "SFProRounded",
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Innovating The Way You Get Licensed",
+              style: TextStyle(
+                fontFamily: "SFProRounded",
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 20),// Space between text and image
+            Center(
+              child: SizedBox(
+                height: 380,
+                width: 380,
                 child: Image.asset(
-                  'lib/assets/home.jpeg',
-                  fit: BoxFit.contain,
+                  "lib/assets/homewallpaper.jpeg",
+                  fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(height: 10),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: Container(

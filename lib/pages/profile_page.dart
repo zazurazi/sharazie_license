@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:convert'; // ✅ For Base64 encoding
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    loadProfileData(); // ✅ Load saved profile data (including photo)
+    loadProfileData(); // Load user profile data from Firestore
   }
 
   @override
@@ -35,22 +36,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         title: Row(
+          mainAxisSize: MainAxisSize.min, // Makes the Row take only as much space as needed
           children: [
-            // Logo Image
             Image.asset(
-              'lib/assets/logo.jpeg', // Path to your logo image
-              height: 35, // Adjust the size of the logo
+              'lib/assets/logo.jpeg',
+              width: 35, // Adjust the width if necessary
+              height: 35,
             ),
-            const SizedBox(width: 0), // Space between the logo and the title
-            // Profile Title
-            Text(
-              'Profile',
-              style: sfProRoundedStyle(24),
+            const SizedBox(width: 1), // Reduced space
+            const Text(
+              "Profile",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'SFProRounded',
+                color: Colors.black,
+              ),
             ),
           ],
         ),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -59,20 +67,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: <Widget>[
               Stack(
                 children: [
-                  // Profile image with black frame
+                  // Profile image with border
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.black, // Black border color
-                        width: 4, // Border width
-                      ),
+                      border: Border.all(color: Colors.grey, width: 4),
                     ),
                     child: _image != null
-                        ? CircleAvatar(
-                      radius: 80,
-                      backgroundImage: MemoryImage(_image!),
-                    )
+                        ? CircleAvatar(radius: 80, backgroundImage: MemoryImage(_image!))
                         : const CircleAvatar(
                       radius: 70,
                       backgroundImage: NetworkImage(
@@ -86,12 +88,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () {
                         showImagePickerOption(context);
                       },
-                      icon: const Icon(Icons.add_a_photo, size: 30, color: Colors.black),
+                      icon: const Icon(Icons.add_a_photo, size: 30, color: Colors.blue),
                     ),
                   )
                 ],
               ),
               const SizedBox(height: 30),
+
               // Form fields
               buildTextField("Full Name", nameController),
               buildTextField("IC Number", icController),
@@ -99,22 +102,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               buildTextField("Phone Number", phoneController),
               buildTextField("Gender", genderController),
               buildTextField("Date of Birth", dobController),
+
               const SizedBox(height: 20),
+
               // Save button
               ElevatedButton(
                 onPressed: saveProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Set the button color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded button
-                  ),
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  elevation: 10, // Adds shadow to the button
-                  shadowColor: Colors.grey.withOpacity(0.5), // Sets the shadow color and opacity
+                  elevation: 10,
                 ),
-                child: Text(
+                child: const Text(
                   "Save",
-                  style: sfProRoundedStyle(18).copyWith(color: Colors.black), // SFProRounded font + Black color
+                  style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'SFProRounded'),
                 ),
               ),
             ],
@@ -129,35 +131,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.only(bottom: 15),
       child: TextField(
         controller: controller,
-        style: sfProRoundedStyle(16), // Apply SFProRounded font to TextField text
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: sfProRoundedStyle(16), // Apply SFProRounded font to hint text
+          hintStyle: const TextStyle(fontFamily: 'SFProRounded'),
           filled: true,
           fillColor: Colors.grey[200],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(
-              color: Colors.black, // Black border color
-              width: 2, // Border width
-            ),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(
-              color: Colors.black, // Border color when focused
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(
-              color: Colors.black, // Border color when enabled
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: Colors.black, width: 2),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
+        style: const TextStyle(fontFamily: 'SFProRounded'),
       ),
     );
   }
@@ -177,23 +170,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 InkWell(
                   onTap: _pickImageFromGallery,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.image, size: 80),
-                      Text("Gallery")
-                    ],
-                  ),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                    Icon(Icons.image, size: 80),
+                    Text("Gallery", style: TextStyle(fontFamily: 'SFProRounded')),
+                  ]),
                 ),
                 InkWell(
                   onTap: _pickImageFromCamera,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.camera_alt_outlined, size: 80),
-                      Text("Camera")
-                    ],
-                  ),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                    Icon(Icons.camera_alt_outlined, size: 80),
+                    Text("Camera", style: TextStyle(fontFamily: 'SFProRounded')),
+                  ]),
                 ),
               ],
             ),
@@ -210,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
-    saveImage(_image!); // Save image to SharedPreferences
+    saveImage(_image!);
     Navigator.of(context).pop();
   }
 
@@ -221,52 +208,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
       selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
-    saveImage(_image!); // Save image to SharedPreferences
+    saveImage(_image!);
     Navigator.of(context).pop();
   }
 
   Future<void> saveProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('name', nameController.text);
-    await prefs.setString('ic', icController.text);
-    await prefs.setString('email', emailController.text);
-    await prefs.setString('phone', phoneController.text);
-    await prefs.setString('gender', genderController.text);
-    await prefs.setString('dob', dobController.text);
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile Saved Successfully!")),
-    );
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'name': nameController.text,
+      'id': icController.text,
+      'email': emailController.text,
+      'phone': phoneController.text,
+      'gender': genderController.text,
+      'dob': dobController.text,
+      'profileImage': _image != null ? base64Encode(_image!) : "",
+    }, SetOptions(merge: true));
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Saved Successfully!", style: TextStyle(fontFamily: 'SFProRounded'))));
   }
 
   Future<void> saveImage(Uint8List imageBytes) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     String base64Image = base64Encode(imageBytes);
-    await prefs.setString('profileImage', base64Image);
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'profileImage': base64Image});
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Image Updated Successfully!", style: TextStyle(fontFamily: 'SFProRounded'))));
   }
 
   Future<void> loadProfileData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      nameController.text = prefs.getString('name') ?? "";
-      icController.text = prefs.getString('ic') ?? "";
-      emailController.text = prefs.getString('email') ?? "";
-      phoneController.text = prefs.getString('phone') ?? "";
-      genderController.text = prefs.getString('gender') ?? "";
-      dobController.text = prefs.getString('dob') ?? "";
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-      String? base64Image = prefs.getString('profileImage');
-      if (base64Image != null) {
-        _image = base64Decode(base64Image);
-      }
-    });
-  }
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
 
-  TextStyle sfProRoundedStyle(double size) {
-    return TextStyle(
-      fontFamily: 'SFProRounded',
-      fontSize: size,
-      fontWeight: FontWeight.w500, // Try different weights: w400, w500, w600, w700
-    );
+    if (userDoc.exists) {
+      setState(() {
+        nameController.text = userDoc['name'] ?? "";
+        icController.text = userDoc['id'] ?? "";
+        emailController.text = userDoc['email'] ?? "";
+        phoneController.text = userDoc['phone'] ?? "";
+        genderController.text = userDoc['gender'] ?? "";
+        dobController.text = userDoc['dob'] ?? "";
+        String? profileImageUrl = userDoc['profileImage'];
+        if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+          _image = base64Decode(profileImageUrl);
+        }
+      });
+    }
   }
 }
