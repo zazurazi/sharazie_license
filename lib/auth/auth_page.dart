@@ -5,6 +5,7 @@ import 'package:sharazie_license/pages/loginScreen.dart';
 import 'package:sharazie_license/pages/register_page.dart';
 import 'package:sharazie_license/admin/admin_dashboard.dart'; // Admin Page
 import 'package:sharazie_license/pages/home_page.dart'; // User Page
+import '../pages/otp_verification.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -43,17 +44,38 @@ class _AuthPageState extends State<AuthPage> {
           .doc(user.uid)
           .get();
 
-      if (userDoc.exists) {
-        setState(() {
-          role = userDoc['role'];
-          isLoading = false;
-        });
-      } else {
+      if (!userDoc.exists) {
         setState(() => isLoading = false);
+        return;
+      }
+
+      String role = userDoc['role'] ?? "";
+      bool isOtpVerified = userDoc['isOtpVerified'] ?? false;
+
+      if (!isOtpVerified) {
+        // Redirect to OTP Page if not verified
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationPage(
+              userId: user.uid,
+              email: user.email!,
+            ),
+          ),
+        );
+      } else if (role == "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminDashboard()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Homepage()),
+        );
       }
     } catch (e) {
-      print("Error fetching user role: $e");
-      setState(() => isLoading = false);
+      print("Error checking user role: $e");
     }
   }
 

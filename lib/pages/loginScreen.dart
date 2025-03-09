@@ -5,6 +5,7 @@ import 'package:sharazie_license/pages/home_page.dart';
 import 'package:sharazie_license/pages/register_page.dart';
 import '../admin/admin_dashboard.dart';
 import 'otp_verification.dart'; // Import OTP Verification Page
+import 'smtp_service.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback showRegisterPage;
@@ -30,9 +31,10 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
+      String userId = userCredential.user!.uid;
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(userCredential.user!.uid)
+          .doc(userId)
           .get();
 
       if (!userDoc.exists) {
@@ -41,25 +43,69 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       String role = userDoc['role'] ?? "";
+      bool isOtpVerified = userDoc['isOtpVerified'] ?? false;
 
-      if (role == "admin") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AdminDashboard()),
-        );
+      // Generate OTP
+      String otp = _generateOtp();
+      print("Generated OTP: $otp");  // Debugging
+
+      // Store OTP in otp_verification collection
+      await FirebaseFirestore.instance
+          .collection('otp_verification')
+          .doc(userId)
+          .set({
+        'otp': otp,
+        'timestamp': FieldValue.serverTimestamp(),
+      }).then((_) {
+        print("OTP successfully stored in Firestore");  // Debugging
+      }).catchError((error) {
+        print("Error storing OTP in Firestore: $error");  // Debugging
+      });
+
+      // Add verificationtest field to users collection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({
+        'verificationtest': 'test',
+      }).then((_) {
+        print("Added verificationtest field to users collection");
+      }).catchError((error) {
+        print("Error updating users collection: $error");
+      });
+
+      // Create an instance of SmtpService
+      SmtpService smtpService = SmtpService();
+
+      // Send OTP via email
+      bool emailSent = await smtpService.sendOTP(_emailController.text.trim(), otp);
+      if (emailSent) {
+        print("OTP email sent successfully");
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Homepage(),
-          ),
-        );
+        print("Failed to send OTP email");
       }
+
+      // Redirect to OTP Verification Page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationPage(
+            userId: userId,
+            email: _emailController.text.trim(),
+          ),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       _showError(e.message ?? "Login failed.");
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+
+// Function to generate a 6-digit OTP
+  String _generateOtp() {
+    return (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
   }
 
   void _showError(String message) {

@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../biometric/biometric_auth.dart'; // Import biometric auth file
+import '../biometric/biometric_auth.dart';
 import '../pages/home_page.dart';
+import '../admin/admin_dashboard.dart';
 import '../pages/otp_verification.dart';
 import 'auth_page.dart';
 
@@ -16,8 +17,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final BiometricAuth _biometricAuth = BiometricAuth(); // Biometric instance
-
+  final BiometricAuth _biometricAuth = BiometricAuth();
   bool _isAuthenticated = false;
 
   @override
@@ -110,23 +110,49 @@ class _MainPageState extends State<MainPage> {
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return FutureBuilder<bool>(
-              future: _isOtpVerified(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.data == true) {
-                  return const Homepage();
-                } else {
-                  return const AuthPage();
-                }
-              },
-            );
-          } else {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data == null) {
             return const AuthPage();
           }
+
+          return FutureBuilder<bool>(
+            future: _isOtpVerified(),
+            builder: (context, otpSnapshot) {
+              if (otpSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (otpSnapshot.data == false) {
+                return OtpVerificationPage(
+                  userId: snapshot.data!.uid,
+                  email: snapshot.data!.email!,
+                );
+              }
+
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(snapshot.data!.uid)
+                    .get(),
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+                    return const AuthPage();
+                  }
+
+                  final userRole = userSnapshot.data!.get('role');
+                  if (userRole == 'admin') {
+                    return const AdminDashboard();
+                  }
+
+                  return const Homepage();
+                },
+              );
+            },
+          );
         },
       ),
     );
